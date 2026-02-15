@@ -1,0 +1,6 @@
+-r scripts/BAMBOO/requirements.txt
+
+tqdm
+pandas
+numpy
+jupyterlab

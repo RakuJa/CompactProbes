@@ -39,54 +39,40 @@ Reducing complexity and costs of network traffic analysis Network traffic analys
 
 The methodologies developed in the COMPACT project will be tested in various network scenarios. These scenarios encompass central traffic analysis in backbone networks, examination of IoT traffic in home networks, and various traffic analysis tasks across different network elements and traffic rates.
 
-<!-- REPOSITORY STRUCTURE -->
-## Repository Structure
 
-Repository is organized according to the [Cookiecutter Data Science](https://github.com/drivendata/cookiecutter-data-science) structure. In the box below, we add some notes about each notebook, script and folder as a sort of Table of Contents.
+# How to replicate the results
+Steps marked as (opt) are optional: the result is either inconsequential or the output can already be found in the data folder. If we are looking to run everything from scratch then it's highly suggested to run those steps
 
+0. Be in the project's root
+
+
+1. Create a venv (i'm using [uv](https://docs.astral.sh/uv/) as project manager).
+It MUST be python 3.11, libraries are not updated to new python versions.
+```bash
+uv venv --python 3.11
 ```
-.
-├── README.md
-├── data
-│   ├── extracted                                        ← Data extracted from raw, using /src/data_extraction
-│   ├── interim                                          ← Intermediate data that has been transformed
-│   ├── processed                                        ← The final, canonical data sets for modeling
-│   └── raw                                              ← The original, immutable data dump in .PCAP format
-│
-├── images
-├── models                                               ← Trained and serialized models
-├── notebooks
-│   ├── Template.ipynb
-│   ├── config.ini                                       ← Configuration files for /notebooks, containing paths
-│   ├── data_encoding                                    ← Data encodings and embeddings tests and comparisons
-│   │   ├── IE_embeddings.ipynb
-│   │   ├── IE_one-hot_encoding.ipynb
-│   │   └── IE_sum_encoding.ipynb
-│   ├── data_exploration_cleaning                        ← Data pre-processing and visualization from /data/raw to /data/interim
-│   │   ├── data_balancing.ipynb                         ← Balancing Baccichet + Pintor dataset. Outputs: balanced_df_raw, encoded_LABEL_balanced_df
-│   │   ├── data_cleaning_SSID_length.ipynb
-│   │   ├── data_exploration_temporal.ipynb              ← Experimenting with time-related features: IBAT, FSCT
-│   │   ├── data_pre-processing.ipynb                    ← Filling combined_raw dataset NaN with -1. Output: combined_df
-│   │   ├── data_visualization_correlation.ipynb         ← Analysis of label encoded features
-│   │   ├── data_visualization_statistics.ipynb          ← Analysis of label encoded features
-│   │   └── uji_dataset                                  ← Notebooks for the unlabelled UJI Dataset (used for generalization)
-│   │       └── data_visualization_statistics_uji.ipynb
-│   ├── data_testing_subsets
-│   │   └── data_subset_generation.ipynb                 ← Generating randomized subsets for testing. Output: /reports/CSV/subset_combinations/unique_combinations.csv
-│   ├── models_feature_engineering
-│   │   └── feature_selection_RF.ipynb
-│   ├── models_train_evaluate
-│   └── scripts
-│       ├── __init__.py
-│       ├── encodingHelper.py
-│       └── plotHelper
-├── reports
-└── src                                                  ← Source code for use in this project
-    └── data_extraction                                  ← Data extraction tool from /data/raw to /data/extracted
-        ├── config.ini                                   ← Configuration files for /data_extraction, containing paths
-        └── data_extraction.py
+2. Source it
+```bash
+source .venv/bin/activate
 ```
-
-## Notebooks
-
-In the `notebooks` folder there are a variety of Jupyter Notebooks that are requrired for different purposes. In order to keep track of their order of execution, the input and output files they produce, and also to have a summary of their purpose, we reported everything in a dedicated [README](notebooks/README.md).
+3. Install requirements (jupyter lab included)
+```bash
+uv pip install -r requirements
+```
+4. (opt) Prepare data by running the various pre-processing notebooks in order (data_pre-processing, data_split)
+```bash
+jupyter lab notebooks/data_pre-processing/no_randomization_fix.ipynb
+```
+5. (opt) Run bamboo with various values (e.g. 16/32/64)
+```bash
+uv run bamboo_fast.py -M 64 -F 64
+```
+6. (opt) Extract values using the custom made (not official) script
+```bash
+uv run scripts/extract_from_log.py --log-file scripts/BAMBOO/BEST_CONFIG_FABIO\(8bit-filters\).log --extract-only
+```
+7. (opt) Update values found in the pf_training_x_bit.ipynb with the result of the previous script (Check for data_fabio or data arrays)
+8. Run all the various testing notebook
+```bash
+jupyter lab notebooks/method_probabilistic_fingerprint/pf_testing_64bit.ipynb
+```
